@@ -29,6 +29,15 @@ class Api extends BaseApi
                 'title'   => $this->api->getName(),
                 'version' => (string) $this->api->getVersion(),
             ],
+             'securityDefinitions'=>[
+                'Bearer'=>[
+                    'type'=>'apiKey',
+                    'name'=> 'Authorization',
+                    'in'=>'header',
+                    "flow"=> "implicit",
+
+                ]
+            ],
         ];
 
         foreach ($this->api->services as $service) {
