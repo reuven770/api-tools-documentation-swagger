@@ -118,6 +118,8 @@ class Service extends BaseService
     private function getCollectionOperationsData(string $route): array
     {
         $urlParameters = $this->getURLParametersNotRequired($route);
+        $urlParameters = $this->getURLQueryParameters() ? array_merge($urlParameters,$this->getURLQueryParameters()) : $urlParameters;
+
         unset($urlParameters[$this->service->routeIdentifierName]);
         $operations = $this->service->operations;
         return $this->getOperationsData($operations, $urlParameters);
@@ -172,7 +174,30 @@ class Service extends BaseService
         }
         return $templateParameters;
     }
+    protected function getURLQueryParameters()
+    {
+        // find all parameters in Swagger naming format
+        //preg_match_all('#{([\w\d_-]+)}#', $route, $parameterMatches);
+        $queryWhitelist = $this->service->getQueryWhitelist();
+        if (count($queryWhitelist) > 0) {
+            $templateQueryParameters = [];
+            foreach ($queryWhitelist as $paramSegmentName) {
+                $templateQueryParameters[$paramSegmentName] = [
+                    'in' => 'query',
+                    'name' => $paramSegmentName,
+                    'description' => 'URL parameter ' . $paramSegmentName,
+                    'dataType' => 'string',
+                    'required' => false,
+                    'minimum' => 0,
+                    'maximum' => 1,
+                    'defaultValue' => ''
+                ];
+            }
+            return $templateQueryParameters;
+        } else return false;
 
+    }
+    
     /** @psalm-return array<string, mixed> */
     private function getPostPatchPutBodyParameter(): array
     {
